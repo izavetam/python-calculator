@@ -1,0 +1,78 @@
+import os
+from datetime import datetime
+
+# ---- ПУТЬ К ФАЙЛУ ИСТОРИИ ----
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+HISTORY_FILE = os.path.join(BASE_DIR, 'history.txt')
+
+# ---- ЛОГИРОВАНИЕ ----
+def log_calculation(a, op, b, result):
+    with open(HISTORY_FILE, 'a', encoding='utf-8') as file:
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        file.write(f'{timestamp} | {a} {op} {b} = {result}\n')
+
+# вспомогательные функции
+#запрашиваем число, пока не введут корректное. Используем try/except для ловли ошибок.
+def get_number(prompt):
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print('Ошибка: введите число (можно дробное)')
+ # Проверяем, что операция есть в списке allowed. Если нет - просит ввести заново.
+def get_operation():
+    allowed = ['+','-','*','/']
+    while True:
+        op = input('Введите операцию (+.-.*./): ')
+        if op in allowed:
+            return op
+        print('Ошибка: допустимые операции: +,-,*,/')
+# Выполняем команды для каждой операции
+def add(a,b):
+    return a+b
+def sub(a,b):
+    return a-b
+def mul(a,b):
+    return a*b
+def div(a,b):
+    if b==0:
+        return 'Ошибка: деление на ноль'
+    return a/b
+
+def show_last_calculations():
+    try:
+        with open(HISTORY_FILE, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+            last_lines = lines[-5:]
+            print('\n--- Последние вычисления ---')
+            for line in last_lines:
+                print(line.strip())
+            print('------------------------------\n')
+    except FileNotFoundError:
+        print('История пустая\n')
+
+# Главная функция, просим ввести числа, выполняем операции, и либо продолжаем вычисления, либо заканчиваем.
+def main():
+    while True:
+        a=get_number('Введите первое число: ')
+        op= get_operation()
+        b=get_number('Введите второе число: ')
+
+        if op == '+':
+            result = add(a,b)
+        elif op == '-':
+            result = sub(a,b)
+        elif op == '*':
+            result = mul(a,b)
+        elif op == '/':
+            result = div(a,b)
+        print(f'Результат: {result}')
+        log_calculation(a,op,b,result)
+        
+        again = input('Продолжить? (да/нет): ').strip().lower()    
+        if again != 'да' :
+            print('До свидания')  
+            break
+    
+if __name__ == "__main__": # Позволяет импортировать код как модуль 
+    main() 
